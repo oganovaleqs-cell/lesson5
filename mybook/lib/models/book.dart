@@ -1,5 +1,4 @@
 enum Genre { All, Novel, Story, Fantasy, Poetry }
-
 class Book {
   final String id;
   final String title;
@@ -7,7 +6,6 @@ class Book {
   final Genre genre;
   bool isRead;
   int rating;
-
   Book({
     required this.id,
     required this.title,
