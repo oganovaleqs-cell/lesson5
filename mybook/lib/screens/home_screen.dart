@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../data/books_data.dart';
 import '../models/book.dart';
 import '../widgets/book_tile.dart';
-import 'details_screen.dart';
+import 'book_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,30 +12,23 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Book> _books = [
-    Book(id: '1', title: 'Վերք Հայաստանի', author: 'Խաչատուր Աբովյան', genre: Genre.Novel),
-    Book(id: '2', title: 'Սամվել', author: 'Րաֆֆի', genre: Genre.Novel),
-    Book(id: '3', title: 'Գիքորը', author: 'Հովհաննես Թումանյան', genre: Genre.Story),
-    Book(id: '4', title: 'Անուշ', author: 'Հովհաննես Թումանյան', genre: Genre.Poetry),
-    Book(id: '5', title: 'Քաոս', author: 'Շիրվանզադե', genre: Genre.Novel),
-    Book(id: '6', title: 'Մատանիների տիրակալը', author: 'Ջ. Ռ. Ռ. Թոլքին', genre: Genre.Fantasy),
-    Book(id: '7', title: 'Հարրի Փոթեր', author: 'Ջ. Ք. Ռոուլինգ', genre: Genre.Fantasy),
-    Book(id: '8', title: 'Հին աստվածներ', author: 'Լևոն Շանթ', genre: Genre.Story),
-    Book(id: '9', title: 'Երկիր Նաիրի', author: 'Եղիշե Չարենց', genre: Genre.Novel),
-    Book(id: '10', title: 'Տաղարան', author: 'Եղիշե Չարենց', genre: Genre.Poetry),
-  ];
-
+  final List<Book> _books = buildInitialBooks();
   final TextEditingController _searchController = TextEditingController();
-  Genre _selectedGenre = Genre.All;
+  Genre? _selectedGenre;
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
   int get _readCount => _books.where((b) => b.isRead).length;
-
   List<Book> get _filteredBooks {
     final query = _searchController.text.toLowerCase();
     return _books.where((book) {
       final matchesSearch = book.title.toLowerCase().contains(query) ||
           book.author.toLowerCase().contains(query);
-      final matchesGenre = _selectedGenre == Genre.All || book.genre == _selectedGenre;
+      final matchesGenre =
+          _selectedGenre == null || book.genre == _selectedGenre;
       return matchesSearch && matchesGenre;
     }).toList();
   }
@@ -95,22 +89,27 @@ class _HomeScreenState extends State<HomeScreen> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: Genre.values.map((genre) {
-                return Padding(
+              children: [
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
                   child: ChoiceChip(
-                    label: Text(genre.name),
-                    selected: _selectedGenre == genre,
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() {
-                          _selectedGenre = genre;
-                        });
-                      }
-                    },
+                    label: const Text('Բոլորը'),
+                    selected: _selectedGenre == null,
+                    onSelected: (_) => setState(() => _selectedGenre = null),
                   ),
-                );
-              }).toList(),
+                ),
+                ...Genre.values.map((genre) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: ChoiceChip(
+                      label: Text(genre.label),
+                      selected: _selectedGenre == genre,
+                      onSelected: (_) =>
+                          setState(() => _selectedGenre = genre),
+                    ),
+                  );
+                }),
+              ],
             ),
           ),
           const Divider(),
@@ -140,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             final newRating = await Navigator.push<int>(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => DetailsScreen(book: book),
+                                builder: (_) => BookDetailsScreen(book: book),
                               ),
                             );
                             if (newRating != null && newRating > 0) {

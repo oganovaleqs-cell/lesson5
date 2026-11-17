@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
+import '../widgets/star_rating.dart';
 
-class DetailsScreen extends StatefulWidget {
+class BookDetailsScreen extends StatefulWidget {
   final Book book;
 
-  const DetailsScreen({super.key, required this.book});
+  const BookDetailsScreen({super.key, required this.book});
 
   @override
-  State<DetailsScreen> createState() => _DetailsScreenState();
+  State<BookDetailsScreen> createState() => _BookDetailsScreenState();
 }
 
-class _DetailsScreenState extends State<DetailsScreen> {
+class _BookDetailsScreenState extends State<BookDetailsScreen> {
   late int _selectedRating;
 
   @override
@@ -33,28 +34,16 @@ class _DetailsScreenState extends State<DetailsScreen> {
             ),
             const SizedBox(height: 20),
             const Text('Գնահատական (1–5):'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (index) {
-                return IconButton(
-                  icon: Icon(
-                    index < _selectedRating ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
-                    size: 32,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _selectedRating = index + 1;
-                    });
-                  },
-                );
-              }),
+            StarRating(
+              rating: _selectedRating,
+              size: 32,
+              onChanged: (value) => setState(() => _selectedRating = value),
             ),
             const Spacer(),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context, _selectedRating);
-              },
+              onPressed: _selectedRating == 0
+                  ? null
+                  : () => Navigator.pop(context, _selectedRating),
               child: const Text('Պահպանել'),
             ),
           ],

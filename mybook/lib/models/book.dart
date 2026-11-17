@@ -1,4 +1,13 @@
-enum Genre { All, Novel, Story, Fantasy, Poetry }
+enum Genre {
+  novel('Վեպ'),
+  story('Պատմվածք'),
+  fantasy('Ֆանտաստիկա'),
+  poetry('Պոեզիա');
+
+  final String label;
+  const Genre(this.label);
+}
+
 class Book {
   final String id;
   final String title;
@@ -6,6 +15,7 @@ class Book {
   final Genre genre;
   bool isRead;
   int rating;
+
   Book({
     required this.id,
     required this.title,
